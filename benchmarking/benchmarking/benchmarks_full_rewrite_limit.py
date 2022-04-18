@@ -1,9 +1,10 @@
 import sys
 
-from versionedzarrlib.data import VersionedData
+
 
 sys.path.append('../../')
 sys.path.append('../')
+from versionedzarrlib.data import VersionedData
 # from config import *
 from path_config import *
 from utils import *
