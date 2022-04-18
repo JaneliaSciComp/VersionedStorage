@@ -179,5 +179,3 @@ class VersionedData():
     def _is_chunk_key(key):
         return str(key).__contains__('/')
 
-# class VersionedIndexArray(object):
-#

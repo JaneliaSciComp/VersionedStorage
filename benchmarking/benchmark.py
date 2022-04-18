@@ -5,28 +5,26 @@ Writing_index_time = 0
 Commit_time = 1
 Checkout_time = 2
 GC_time = 3
-Random_fill = 4
-Initial_commit = 5
-Initial_GC = 6
 
-Remaining_space = 10
-DU_Size = 11
-Used_Size_df = 12
+Initial_size = 10
+After_Write_Before_GIT = 11
+Git_Size_Before = 12
+Git_Size_After = 13
+Git_After_GC = 14
 
 TIME_ELEMENTS = [
     "Writing_index_time",
     "Commit_time",
     "Checkout_time",
-    "GC_time",
-    "Random_fill",
-    "Initial_commit",
-    "Initial_GC"
+    "GC_time"
 ]
 
 SIZE_ELEMENTS = [
-    "Remaining_space",
-    "DU_Size",
-    "Used_Size_df"
+    "Initial_size",
+    "After_Write_Before_GIT",
+    "Git_Size_Before",
+    "Git_Size_After",
+    "Git_After_GC"
 ]
 
 Type_Time = 0

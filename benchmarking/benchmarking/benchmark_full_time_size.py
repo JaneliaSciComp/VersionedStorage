@@ -1,5 +1,7 @@
 import sys
 
+from versionedzarrlib.data import VersionedData
+
 sys.path.append('../../')
 
 from config import *
@@ -49,7 +51,7 @@ def main():
                 dask_data = dask_data.rechunk(index_chunk_size)
                 print("rechunked")
                 for compress_index in compress_indexes:
-                    data = VersionedDataStore(path=data_path, shape=dims, raw_chunk_size=raw_chunk_size,
+                    data = VersionedData(path=data_path, shape=dims, raw_chunk_size=raw_chunk_size,
                                          index_chunk_size=index_chunk_size,
                                          index_compression=compress_index)
                     for commit_step in commit_steps:
