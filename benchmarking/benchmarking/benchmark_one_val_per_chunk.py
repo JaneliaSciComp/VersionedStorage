@@ -47,6 +47,7 @@ def distributed_fill(data, from_val, to_val, b_time, cluster=None):
 
 def main():
     with ClusterWrap.cluster() as cluster:
+        print(cluster.client)
         # client = Client(processes=False)
         # print(client)
         # print(client.dashboard_link)
