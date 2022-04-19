@@ -23,8 +23,7 @@ from ClusterWrap.decorator import cluster
 
 
 @cluster
-def distributed_fill(data,elms, from_val, to_val, b_time, cluster=None,kwargs={}):
-
+def distributed_fill(data, elms, b_time, cluster=None, kwargs={}):
     dask_data = da.from_array(elms)
     print("Dask created")
     dask_data = dask_data.reshape(dims)
@@ -79,13 +78,14 @@ def main():
             size_b.add(Initial_size, data.du_size())
 
             size_b.add(Git_Size_Before, data.git_size())
-            elms = np.arange(start=from_val, stop=to_val, dtype=np.uint64)
+
+            elms = np.arange(start=total * i, stop=total * (i + 1), dtype=np.uint64)
 
             print("Got numpy array..")
 
             np.random.shuffle(elms)
             print("Array shuffled..")
-            distributed_fill(data=data,elms=elms, from_val=total * i, to_val=total * (i + 1), b_time=b_time, cluster=cluster)
+            distributed_fill(data=data, elms=elms, b_time=b_time, cluster=cluster)
 
             size_b.add(After_Write_Before_GIT, data.du_size())
 
