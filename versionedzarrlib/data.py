@@ -77,6 +77,7 @@ class VersionedData():
         self.vc.init_repo()
         print("Dataset created!")
 
+
     def fill_index_dataset(self, data):
         if data is not None:
             if isinstance(data, da.Array):
