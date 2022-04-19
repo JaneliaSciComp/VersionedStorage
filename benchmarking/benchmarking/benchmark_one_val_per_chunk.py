@@ -1,6 +1,6 @@
 import sys
 
-from benchmarking.benchmark import Writing_index_time
+
 
 sys.path.append('../../')
 sys.path.append('../')
