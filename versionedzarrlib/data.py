@@ -66,6 +66,10 @@ class VersionedData():
         os.mkdir(self._raw_path)
         self._create_new_dataset()
 
+    def get_index_nchunks(self):
+        z = zarr.open(self._index_dataset_path)
+        return z.nchunks
+
     def _create_new_dataset(self):
         metadata = Metadata(shape=self.shape, chunks=self.raw_chunk_size, dtype=self.d_type)
         compressor = self._zarr_compressor

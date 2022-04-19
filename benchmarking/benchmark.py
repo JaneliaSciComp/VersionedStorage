@@ -10,7 +10,8 @@ Initial_size = 10
 After_Write_Before_GIT = 11
 Git_Size_Before = 12
 Git_Size_After = 13
-Git_After_GC = 14
+Folder_Size_After = 14
+Git_After_GC = 15
 
 TIME_ELEMENTS = [
     "Writing_index_time",
@@ -24,6 +25,7 @@ SIZE_ELEMENTS = [
     "After_Write_Before_GIT",
     "Git_Size_Before",
     "Git_Size_After",
+    "Folder_Size_After",
     "Git_After_GC"
 ]
 

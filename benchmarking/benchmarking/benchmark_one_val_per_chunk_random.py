@@ -1,0 +1,103 @@
+import sys
+
+sys.path.append('../../')
+sys.path.append('../')
+from versionedzarrlib.data import VersionedData
+# from config import *
+from path_config import *
+from utils import *
+from benchmark import *
+import numpy as np
+from tqdm import tqdm
+import random
+dims = (1024, 1024, 1024)
+raw_chunk_size = (1, 1, 1)
+index_chunk_size = (64, 64, 64)
+iterations = 10000
+compress_index = True
+branches = ["main", "dev"]
+nbchunks = 16
+chunk = 64
+
+
+def main():
+    # client = Client(processes=False)
+    # print(client)
+    # print(client.dashboard_link)
+
+    data = VersionedData(path=data_path, shape=dims, raw_chunk_size=raw_chunk_size,
+                         index_chunk_size=index_chunk_size)
+    extra = "file_limit_one_random_element_{}_shape_{}_index_{}_compression_{}".format(iterations,
+                                                                    format_tuple(
+                                                                        dims),
+                                                                    format_tuple(
+                                                                        index_chunk_size),
+                                                                    compress_index)
+    data.create(overwrite=True)
+    data.vc.checkout_branch("dev", create=True)
+    data.vc.add_all()
+    data.vc.commit("inital")
+    data.vc.checkout_branch("main", create=True)
+
+    total = data.get_index_nchunks()
+    print(total)
+    # empty_trash()
+    size_benchmark = Benchmarking(
+        Benchmarking.create_path(current_folder=benchmark_path, elm_type=Type_size, extra=extra))
+    size_benchmark.write_line(SizeBenchmark.get_header())
+    time_benchmark = Benchmarking(
+        Benchmarking.create_path(current_folder=benchmark_path, elm_type=Type_Time, extra=extra))
+    time_benchmark.write_line(TimeBenchmark.get_header())
+
+    total = 1
+    for i in dims:
+        total = total * i
+
+    for i in tqdm(range(iterations)):
+        b_time = TimeBenchmark(i)
+        size_b = SizeBenchmark(i)
+
+        size_b.add(Initial_size, data.du_size())
+
+        size_b.add(Git_Size_Before, data.git_size())
+        # print("getting elements")
+
+        elms = np.arange(start=total * i, stop=total * (i + 1), dtype=np.uint64)
+        # print("shuffle")
+        # np.random.shuffle(elms)
+        counter = 0
+        # print("start filling")
+        for x in range(nbchunks):
+            for y in range(nbchunks):
+                for z in range(nbchunks):
+                    index = elms[counter]
+                    counter += 1
+                    pos = (
+                        random.randint(x * chunk, (x + 1) * chunk - 1),
+                        random.randint(y * chunk, (y + 1) * chunk - 1),
+                        random.randint(z * chunk, (z + 1) * chunk - 1))
+                    data._update_index(index, pos)
+        # print("indexes done")
+        size_b.add(After_Write_Before_GIT, data.du_size())
+        # size_b.add(Folder_Size_After, data.du_size())
+        b_time.start_element(Commit_time)
+        data.vc.add_all()
+        data.vc.commit(str(i))
+        b_time.done_element()
+        size_b.add(Git_Size_After, data.git_size())
+
+        b_time.start_element(GC_time)
+        data.vc.gc()
+        b_time.done_element()
+        size_b.add(Git_After_GC, data.git_size())
+
+        b_time.start_element(Checkout_time)
+        data.vc.checkout_branch(branch_name=branches[int(i % 2)])
+        b_time.done_element()
+
+        size_benchmark.write_line(size_b.format())
+        time_benchmark.write_line(b_time.format())
+
+
+if __name__ == "__main__":
+    main()
