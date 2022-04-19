@@ -1,7 +1,5 @@
 import sys
 
-
-
 sys.path.append('../../')
 sys.path.append('../')
 from versionedzarrlib.data import VersionedData
@@ -26,11 +24,14 @@ from ClusterWrap.decorator import cluster
 
 @cluster
 def distributed_fill(data, from_val, to_val, b_time, cluster=None):
-    elms = np.arange(start=from_val, stop=to_val, dtype=np.uint64)
+    # elms = np.arange(start=from_val, stop=to_val, dtype=np.uint64)
+
     print("Got numpy array..")
-    np.random.shuffle(elms)
+    dask_data = da.arange(from_val, to_val, 1, dtype=np.uint64)
+    dask_data = da.random.permutation(dask_data)
+    # np.random.shuffle(elms)
     print("Array shuffled..")
-    dask_data = da.from_array(elms)
+    # dask_data = da.from_array(elms)
     print("Dask created")
     dask_data = dask_data.reshape(dims)
     print("Array reshaped")
@@ -39,8 +40,8 @@ def distributed_fill(data, from_val, to_val, b_time, cluster=None):
     b_time.start_element(Writing_index_time)
     dest = zarr.open(data._index_dataset_path)
     print("Filling data ..")
-    da.store(data, dest)
-    data.fill_index_dataset(data=dask_data)
+    da.store(dask_data, dest)
+    # data.fill_index_dataset(data=dask_data)
     b_time.done_element()
 
 
