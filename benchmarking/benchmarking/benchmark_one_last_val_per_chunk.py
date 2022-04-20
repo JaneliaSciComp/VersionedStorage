@@ -9,6 +9,7 @@ from utils import *
 from benchmark import *
 import numpy as np
 from tqdm import tqdm
+from dask.distributed import Client
 
 dims = (1024, 1024, 1024)
 raw_chunk_size = (1, 1, 1)
@@ -21,6 +22,7 @@ chunk = 64
 
 
 def main():
+    client = Client(n_workers=4)
     # client = Client(processes=False)
     # print(client)
     # print(client.dashboard_link)
@@ -28,11 +30,11 @@ def main():
     data = VersionedData(path=data_path, shape=dims, raw_chunk_size=raw_chunk_size,
                          index_chunk_size=index_chunk_size)
     extra = "file_limit_last_element_{}_shape_{}_index_{}_compression_{}".format(iterations,
-                                                                                       format_tuple(
-                                                                                           dims),
-                                                                                       format_tuple(
-                                                                                           index_chunk_size),
-                                                                                       compress_index)
+                                                                                 format_tuple(
+                                                                                     dims),
+                                                                                 format_tuple(
+                                                                                     index_chunk_size),
+                                                                                 compress_index)
     data.create(overwrite=True)
     data.vc.checkout_branch("dev", create=True)
     data.vc.add_all()
@@ -77,25 +79,25 @@ def main():
                            (z + 1) * chunk - 1)
                     data._update_index(index, pos)
                     # print("indexes done")
-                    size_b.add(After_Write_Before_GIT, data.du_size())
-                    # size_b.add(Folder_Size_After, data.du_size())
-                    b_time.start_element(Commit_time)
-                    data.vc.add_all()
-                    data.vc.commit(str(i))
-                    b_time.done_element()
-                    size_b.add(Git_Size_After, data.git_size())
+        size_b.add(After_Write_Before_GIT, data.du_size())
+        # size_b.add(Folder_Size_After, data.du_size())
+        b_time.start_element(Commit_time)
+        data.vc.add_all()
+        data.vc.commit(str(i))
+        b_time.done_element()
+        size_b.add(Git_Size_After, data.git_size())
 
-                    b_time.start_element(GC_time)
-                    data.vc.gc()
-                    b_time.done_element()
-                    size_b.add(Git_After_GC, data.git_size())
+        b_time.start_element(GC_time)
+        data.vc.gc()
+        b_time.done_element()
+        size_b.add(Git_After_GC, data.git_size())
 
-                    b_time.start_element(Checkout_time)
-                    data.vc.checkout_branch(branch_name=branches[int(i % 2)])
-                    b_time.done_element()
+        b_time.start_element(Checkout_time)
+        data.vc.checkout_branch(branch_name=branches[int(i % 2)])
+        b_time.done_element()
 
-                    size_benchmark.write_line(size_b.format())
-                    time_benchmark.write_line(b_time.format())
+        size_benchmark.write_line(size_b.format())
+        time_benchmark.write_line(b_time.format())
 
 
 if __name__ == "__main__":
